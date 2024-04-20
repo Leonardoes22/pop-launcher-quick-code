@@ -1,11 +1,13 @@
 **To Do**
-- [ ] Define zoxide vs fzf
-- [ ] Crawl VSCode Workspaces directory (`~/.config/Code/User/workspaceStorage`)
-- [ ] Make name more user readable by making it relative path `~/..`
-- [ ] Make it also work with files
-- [ ] Dev
+- [ ] Improve search mechanism
+    - [ ] Verify need to use both zoxide vs fzf
+    - [ ] Improve workspaces search code
+    - [ ] Improve path renaming mechanism
+- [x] Crawl VSCode Workspaces directory (`~/.config/Code/User/workspaceStorage`)
+- [x] Make name more user readable by making it relative path `~/..`
+- [ ] Improve compatibility
     - [ ] Create an installation script
-    - [ ] Add git version control
-- [ ] Icons
-    - [ ] Change icon to vscode if there is a VS Code workspace
-    - [ ] Better handle vscode icon path
+    - [ ] Better handle vscode and icon path
+- [ ] Additional Features
+    - [x] Change icon to vscode if there is a VS Code workspace
+    - [ ] Make it also work with files

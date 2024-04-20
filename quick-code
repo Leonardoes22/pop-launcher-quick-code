@@ -5,51 +5,98 @@ import os
 import sys
 import subprocess
 
+HOME_DIR = os.path.expanduser("~")
+
+
 class App(object):
     def __init__(self):
+        self.CODE_PATH = "/usr/bin/code"
+        self.CODE_ICON_PATH = "/usr/share/code/resources/app/resources/linux/code.png"
+        self.WORKSPACES_PATH = os.path.join(
+            HOME_DIR, ".config/Code/User/workspaceStorage"
+        )
+
         self.entries = []
 
     def activate(self, index):
         if not self.entries:
             return
 
-        os.system(f'/usr/bin/code {self.entries[index]}')
+        os.system(f"{self.CODE_PATH} {self.entries[index]}")
         sys.stdout.write('"Close"\n')
         sys.stdout.flush()
 
-    def search_directories(self, query):
-        
-        dir_name = query.removeprefix("code ")
+    def list_workspaces(self):
+        workspace_directories = []
 
-        result = subprocess.run(f'zoxide query --list | fzf -f "{dir_name}"', shell=True, text=True, capture_output=True)
-        lines = result.stdout.splitlines()
+        for root, dirs, files in os.walk(self.WORKSPACES_PATH):
 
-        self.entries = lines
+            if "workspace.json" in files:
+                file_path = os.path.join(root, "workspace.json")
+                with open(file_path, "r") as file:
+                    data = json.load(file)
+                    dir_name = data["folder"].removeprefix("file://")
+                    if os.path.isdir(dir_name):
+                        workspace_directories.append(dir_name.replace(HOME_DIR, "~"))
 
-    def search(self, query):
+        return workspace_directories
 
-        self.search_directories(query)
+    def list_zoxide_entries(self, query):
+
+        zoxide_entries = []
+
+        result = subprocess.run(
+            f'zoxide query --list | fzf -f "{query}"',
+            shell=True,
+            text=True,
+            capture_output=True,
+        )
+        path_list = result.stdout.splitlines()
+
+        for path in path_list:
+            if path.startswith(HOME_DIR):
+                path = path.replace(HOME_DIR, "~")
+            zoxide_entries.append(path)
+
+        return zoxide_entries
+
+    def search(self, input):
+
+        query = dir_name = input.removeprefix("code ")
+
+        zoxide_entries = self.list_zoxide_entries(query)
+        workspaces = self.list_workspaces()
+
+        self.entries = list(set(zoxide_entries).union(set(workspaces)))
 
         for index, entry in enumerate(self.entries):
-            sys.stdout.write(json.dumps({
-                'Append': {
-                    'id': index,
-                    'name': entry,
-                    'description': entry.split("/")[-1],
-                    'keywords': None,
-                    'icon': {
-                        'Mime': 'inode/directory'
-                    },
-                    'exec': None,
-                    'window': None
-                }
-            }))
-            sys.stdout.write('\n')
+
+            if entry in workspaces:
+                icon = {"Name": self.CODE_ICON_PATH}
+            else:
+
+                icon = {"Mime": "inode/directory"}
+
+            sys.stdout.write(
+                json.dumps(
+                    {
+                        "Append": {
+                            "id": index,
+                            "name": entry.split("/")[-1],
+                            "description": entry,
+                            "keywords": None,
+                            "icon": icon,
+                            "exec": None,
+                            "window": None,
+                        }
+                    }
+                )
+            )
+            sys.stdout.write("\n")
 
         sys.stdout.write('"Finished"\n')
         sys.stdout.flush()
 
-# Main Execution
 
 def main():
     app = App()
@@ -57,13 +104,13 @@ def main():
     for line in sys.stdin:
         try:
             request = json.loads(line)
-            if 'Search' in request:
-                app.search(request['Search'])
-            elif 'Activate' in request:
-                app.activate(request['Activate'])
+            if "Search" in request:
+                app.search(request["Search"])
+            elif "Activate" in request:
+                app.activate(request["Activate"])
         except json.decoder.JSONDecodeError:
             pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
