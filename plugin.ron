@@ -1,0 +1,12 @@
+(
+    name: "Quick Code",
+    description: "Quickly open a directory with VSCode\nSyntax: code <query>",
+    query: (
+        regex: "^code\\s.*",
+        help: "code ",
+        isolate: true
+    ),
+    bin: (path: "quick-code"),
+    icon: Name("text-editor-symbolic")
+)
+

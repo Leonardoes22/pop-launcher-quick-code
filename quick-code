@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+
+import json
+import os
+import sys
+import subprocess
+
+class App(object):
+    def __init__(self):
+        self.entries = []
+
+    def activate(self, index):
+        if not self.entries:
+            return
+
+        os.system(f'/usr/bin/code {self.entries[index]}')
+        sys.stdout.write('"Close"\n')
+        sys.stdout.flush()
+
+    def search_directories(self, query):
+        
+        dir_name = query.removeprefix("code ")
+
+        result = subprocess.run(f'zoxide query --list | fzf -f "{dir_name}"', shell=True, text=True, capture_output=True)
+        lines = result.stdout.splitlines()
+
+        self.entries = lines
+
+    def search(self, query):
+
+        self.search_directories(query)
+
+        for index, entry in enumerate(self.entries):
+            sys.stdout.write(json.dumps({
+                'Append': {
+                    'id': index,
+                    'name': entry,
+                    'description': entry.split("/")[-1],
+                    'keywords': None,
+                    'icon': {
+                        'Mime': 'inode/directory'
+                    },
+                    'exec': None,
+                    'window': None
+                }
+            }))
+            sys.stdout.write('\n')
+
+        sys.stdout.write('"Finished"\n')
+        sys.stdout.flush()
+
+# Main Execution
+
+def main():
+    app = App()
+
+    for line in sys.stdin:
+        try:
+            request = json.loads(line)
+            if 'Search' in request:
+                app.search(request['Search'])
+            elif 'Activate' in request:
+                app.activate(request['Activate'])
+        except json.decoder.JSONDecodeError:
+            pass
+
+
+if __name__ == '__main__':
+    main()

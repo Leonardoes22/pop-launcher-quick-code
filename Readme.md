@@ -1,0 +1,11 @@
+**To Do**
+- [ ] Define zoxide vs fzf
+- [ ] Crawl VSCode Workspaces directory (`~/.config/Code/User/workspaceStorage`)
+- [ ] Make name more user readable by making it relative path `~/..`
+- [ ] Make it also work with files
+- [ ] Dev
+    - [ ] Create an installation script
+    - [ ] Add git version control
+- [ ] Icons
+    - [ ] Change icon to vscode if there is a VS Code workspace
+    - [ ] Better handle vscode icon path
