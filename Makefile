@@ -1,0 +1,17 @@
+ifeq ($(DESTDIR),)
+BASE_PATH = $(HOME)/.local
+LIB_PATH = $(BASE_PATH)/share
+else
+BASE_PATH = $(DESTDIR)/usr
+LIB_PATH = $(BASE_PATH)/lib
+endif
+
+LAUNCHER_DIR = $(LIB_PATH)/pop-launcher
+SCRIPTS_DIR = $(LAUNCHER_DIR)/scripts
+PLUGIN_DIR = $(LAUNCHER_DIR)/plugins
+
+install:
+	dest=$(PLUGIN_DIR)/quick-code; \
+	mkdir -p $${dest}; \
+	install -Dm0755 quick-code $${dest}; \
+	install -Dm0644 *.ron $${dest}; \
