@@ -26,4 +26,5 @@ make install
 - [ ] Additional Features
     - [x] Change icon to vscode if there is a VS Code workspace
     - [ ] Make it also work with files
+    - [ ] Open a new file outside of workspace
 
